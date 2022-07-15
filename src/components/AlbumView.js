@@ -1,47 +1,48 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, Link, useHistory } from 'react-router-dom'
+import Spinner from './Spinner'
 
-function AlbumView() {
-    const navigate = useNavigate()
+const ArtistView = () => {
     const { id } = useParams()
-    const [ albumData, setAlbumData ] = useState([])
-
+    const history = useHistory()
+    const [ artistData, setArtistData ] = useState([])
+    
     useEffect(() => {
-        const API_URL = `http://localhost:4000/song/${id}`
+        const API_URL = `http://localhost:4000/album/${id}`
         const fetchData = async () => {
             const response = await fetch(API_URL)
             const resData = await response.json()
-            setAlbumData(resData.results)
+            setArtistData(resData.results)
         }
         fetchData()
-    },[id])
+    }, [id])
 
-    const justSongs = albumData.filter(entry => entry.wrapperType === 'track')
-
-    const renderSongs = justSongs.map((song, i) => {
+    const allAlbums = artistData.filter(entity => entity.collectionType === 'Album')
+    .map((album, i) => {
         return (
             <div key={i}>
-                <p>{song.trackName}</p>
-            </div>
-        )
-    })
+                <Link to={`/album/${album.collectionId}`}>
+                    <p>{album.collectionName}</p>
+                </Link>
+            </div>)
+        })
 
     const navButtons = () => {
-        return(
+        return (
             <div>
-                <button onClick={() => navigate(-1)}>Back</button>
-                |
-                <button onClick={() => navigate('/')}>Home</button>
+                <button onClick={() => {history.push('/')}}>Home</button> |
+                <button onClick={() => {history.goBack()}}>Back</button>
             </div>
         )
     }
 
     return (
         <div>
+            {artistData.length > 0 ? <h2>{artistData[0].artistName}</h2> : <Spinner />}
             {navButtons()}
-            {renderSongs}
+            {allAlbums}
         </div>
     )
 }
 
-export default AlbumView
+export default ArtistView
